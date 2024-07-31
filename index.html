@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TresIII...</title>
+    <style>
+        canvas {
+            background-color: #eee;
+        }
+        .control {
+            display: flex;
+        }
+        .control button {
+            flex: 1;
+            display: block;
+            padding: 20px;
+            font-size: 36px;
+        }
+        .up {
+            margin-bottom: 30px;
+        }
+        .move {
+            margin-bottom: 30px;
+        }
+        #startButton {
+            padding: 20px;
+            font-size: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <canvas id="tetrisCanvas"></canvas>
+        <canvas id="nextPiecesCanvas"></canvas>
+        <button id="startButton">Start</button>
+        <div id="controls" style="display: none;">
+            <div class="control">
+                <button id="btnUp" class="up">UP</button>
+            </div>
+            <div class="control">
+                <button id="btnLeft" class="move">&lt;&lt;&lt;</button>
+                <button id="btnRight" class="move">&gt;&gt;&gt;</button>
+            </div>
+            <div class="control">
+                <button id="btnDown" class="down">PLACE</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let script = document.createElement('script')
+        let src = './game.js'
+        if (!/https?/.test(location.protocol)) {
+            src += `?t=${Date.now()}`
+        }
+        script.src = src
+        document.body.appendChild(script)
+    </script>
+</body>
+</html>
