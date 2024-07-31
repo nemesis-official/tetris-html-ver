@@ -7,6 +7,7 @@ class Tetris {
       this.width = 10;
       this.height = 20;
       this.blockSize = 28;
+      this.blockSizePreview = 24;
       this.grid = Array(this.height).fill().map(() => Array(this.width).fill(0));
       this.currentPiece = null;
       this.nextPieces = [];
@@ -213,10 +214,10 @@ class Tetris {
     }
 
     drawScore() {
-      this.previewCtx.font = "28px Microsoft-Yahei"
+      this.previewCtx.font = "26px Microsoft-Yahei"
       this.previewCtx.fillText(
         `${this.score}`.padStart('8', '0'),
-        10,
+        6,
         30,
         100
       )
@@ -227,8 +228,8 @@ class Tetris {
       let yOffset = 50;
       for (let i = 0; i < this.nextPieces.length; i++) {
         const piece = this.nextPieces[i];
-        const pieceHeight = piece.length * this.blockSize;
-        const pieceWidth = piece[0].length * this.blockSize;
+        const pieceHeight = piece.length * this.blockSizePreview;
+        const pieceWidth = piece[0].length * this.blockSizePreview;
         const xOffset = (this.previewCanvas.width - pieceWidth) / 2;
         
         for (let y = 0; y < piece.length; y++) {
@@ -236,23 +237,23 @@ class Tetris {
             if (piece[y][x]) {
               this.previewCtx.fillStyle = 'blue';
               this.previewCtx.fillRect(
-                xOffset + x * this.blockSize, 
-                yOffset + y * this.blockSize, 
-                this.blockSize, 
-                this.blockSize
+                xOffset + x * this.blockSizePreview, 
+                yOffset + y * this.blockSizePreview, 
+                this.blockSizePreview, 
+                this.blockSizePreview
               );
               this.previewCtx.strokeStyle = 'white';
               this.previewCtx.strokeRect(
-                xOffset + x * this.blockSize, 
-                yOffset + y * this.blockSize, 
-                this.blockSize, 
-                this.blockSize
+                xOffset + x * this.blockSizePreview, 
+                yOffset + y * this.blockSizePreview, 
+                this.blockSizePreview, 
+                this.blockSizePreview
               );
             }
           }
         }
         
-        yOffset += pieceHeight + this.blockSize; // 在每个方块之间添加一个方块的间距
+        yOffset += pieceHeight + this.blockSizePreview; // 在每个方块之间添加一个方块的间距
       }
     }
 
@@ -301,7 +302,7 @@ class Tetris {
   const $ = s => document.querySelector(s)
 
   const previewCanvas = document.getElementById('nextPiecesCanvas');
-  previewCanvas.width = 112;  // 4 * 28
+  previewCanvas.width = 106;  // 4 * 28
   previewCanvas.height = 560; // 20 * 28
    
   

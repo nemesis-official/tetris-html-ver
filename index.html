@@ -27,12 +27,26 @@
             padding: 20px;
             font-size: 32px;
         }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        .game-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #nextPiecesCanvas {
+            border-left: 1px solid #666;
+        }
     </style>
 </head>
 <body>
     <div id="game">
-        <canvas id="tetrisCanvas"></canvas>
-        <canvas id="nextPiecesCanvas"></canvas>
+        <div class="game-canvas">
+            <canvas id="tetrisCanvas"></canvas>
+            <canvas id="nextPiecesCanvas"></canvas>
+        </div>
         <button id="startButton">Start</button>
         <div id="controls" style="display: none;">
             <div class="control">
