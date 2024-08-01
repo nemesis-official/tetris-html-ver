@@ -3,25 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TresIII...</title>
+    <title>TetrisIII...</title>
     <style>
+        body {
+            text-align: center;
+        }
+        .game-canvas {
+            display: flex;
+            align-items: flex-start;
+            width: 96vw;
+            height: 75vh;
+        }
         canvas {
+            opacity: 0.1;
             background-color: #eee;
+        }
+        .controls {
+            position: fixed;
+            bottom: 0;
+            width: 100vw;
+            height: 25vh;
+            display: flex;
         }
         .control {
             display: flex;
+            align-items: center;
         }
         .control button {
             flex: 1;
             display: block;
-            padding: 20px;
             font-size: 36px;
         }
         .up {
-            margin-bottom: 30px;
+            margin-bottom: 10px;
+            opacity: 0.5;
         }
         .move {
-            margin-bottom: 30px;
+            margin-bottom: 10px;
+        }
+        .down {
+            width: 70%;
+        }
+        .drop {
+            width: 30%;
         }
         #startButton {
             padding: 20px;
@@ -30,11 +54,6 @@
         html, body {
             margin: 0;
             padding: 0;
-        }
-        .game-canvas {
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         #nextPiecesCanvas {
             border-left: 1px solid #666;
@@ -57,7 +76,8 @@
                 <button id="btnRight" class="move">&gt;&gt;&gt;</button>
             </div>
             <div class="control">
-                <button id="btnDown" class="down">PLACE</button>
+                <button id="btnDrop" class="drop">↓↓</button>
+                <button id="btnDown" class="down" style="text-decoration: underline;">PLACE</button>
             </div>
         </div>
     </div>
