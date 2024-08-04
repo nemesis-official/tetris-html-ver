@@ -1,3 +1,52 @@
+const CONFIG = {
+  MOVE_DELAY_NORMAL: 500,
+  MOVE_DELAY_FAST: 60
+}
+
+class Pieces {
+  static SQUARE = {
+    Shape: [[1,1],[1,1]],  // Square,
+    Color: '#F0E68C'
+  }
+  static LINE = {
+    Shape: [[1,1,1,1]],    // Line,
+    Color: '#87CEEB'
+  }
+  static T = {
+    Shape: [[1,1,1],[0,1,0]],  // T,
+    Color: '#BA55D3'
+  }
+  static L = {
+    Shape: [[1,1,1],[1,0,0]],  // L,
+    Color: '#FFA07A'
+  }
+  static J = {
+    Shape: [[1,1,1],[0,0,1]],  // J,
+    Color: '#ADD8E6'
+  }
+  static S = {
+    Shape: [[1,1,0],[0,1,1]],  // S,
+    Color: '#90EE90'
+  }
+  static Z = {
+    Shape: [[0,1,1],[1,1,0]],   // Z,
+    Color: '#FFB6C1'
+  }
+
+  static Random() {
+    const pool = [
+      Pieces.SQUARE,  // Square
+      Pieces.LINE,    // Line
+      Pieces.T,  // T
+      Pieces.L,  // L
+      Pieces.J,  // J
+      Pieces.S,  // S
+      Pieces.Z   // Z
+    ]
+    return pool[Math.floor(Math.random() * pool.length)]
+  }
+}
+
 class Tetris {
   constructor(canvas, previewCanvas) {
     this.canvas = canvas;
@@ -9,12 +58,13 @@ class Tetris {
     this.blockSize = 28;
     this.blockSizePreview = 8;
     this.grid = Array(this.height).fill().map(() => Array(this.width).fill(0));
+    this.gridColors = Array(this.height).fill().map(() => Array(this.width).fill('blue'));
     this.currentPiece = null;
     this.nextPieces = [];
     this.gameOver = false;
     this.lastMoveTime = 0;
     this.score = 0
-    this.moveDelay = 500;
+    this.moveDelay = CONFIG.MOVE_DELAY_NORMAL;
 
     this.blockSize = 28;
     this.ghostBlockSize = 28;  // 新增：预测方块的大小
@@ -25,7 +75,7 @@ class Tetris {
 
   initializeGame() {
     for (let i = 0; i < 5; i++) {
-      this.nextPieces.push(this.generatePiece());
+      this.nextPieces.push(this.randomPiece());
     }
     this.spawnPiece();
   }
@@ -34,26 +84,19 @@ class Tetris {
     
   }
 
-  generatePiece() {
-    const pieces = [
-      [[1,1],[1,1]],  // Square
-      [[1,1,1,1]],    // Line
-      [[1,1,1],[0,1,0]],  // T
-      [[1,1,1],[1,0,0]],  // L
-      [[1,1,1],[0,0,1]],  // J
-      [[1,1,0],[0,1,1]],  // S
-      [[0,1,1],[1,1,0]]   // Z
-    ];
-    return pieces[Math.floor(Math.random() * pieces.length)];
+  randomPiece() {
+    return Pieces.Random()
   }
 
   spawnPiece() {
+    const curr = this.nextPieces.shift()
     this.currentPiece = {
-      shape: this.nextPieces.shift(),
+      shape: curr.Shape,
+      color: curr.Color,
       x: Math.floor(this.width / 2) - 1,
       y: 0
     };
-    this.nextPieces.push(this.generatePiece());
+    this.nextPieces.push(this.randomPiece());
     if (this.checkCollision()) {
       this.gameOver = true;
     }
@@ -75,8 +118,16 @@ class Tetris {
         case 'ArrowDown':
           this.placePiece();
           break;
+        case 'Control':
+          this.accelerate(true);
+        default: console.log("key", e.key);
       }
     });
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Control') {
+        this.accelerate(false)
+      }
+    })
   }
 
   movePiece(dx, dy) {
@@ -98,6 +149,11 @@ class Tetris {
     if (this.checkCollision()) {
       this.currentPiece.shape = originalShape;
     }
+  }
+
+  accelerate(bool) {
+    this.moveDelay = bool ? 
+      CONFIG.MOVE_DELAY_FAST : CONFIG.MOVE_DELAY_NORMAL
   }
 
   checkCollision() {
@@ -130,7 +186,9 @@ class Tetris {
               this.gameOver = true;
               return;
             }
-            this.grid[newY][this.currentPiece.x + x] = 1;
+            const newX = this.currentPiece.x + x
+            this.gridColors[newY][newX] = this.currentPiece.color
+            this.grid[newY][newX] = 1;
           }
         }
       }
@@ -158,7 +216,7 @@ class Tetris {
     while (!this.checkCollision(this.currentPiece.x, ghostY + 1, this.currentPiece.shape)) {
       ghostY++;
     }
-    return { x: this.currentPiece.x, y: ghostY };
+    return { x: this.currentPiece.x, y: ghostY, color: this.currentPiece.color };
   }
 
   checkCollision(x = this.currentPiece.x, y = this.currentPiece.y, shape = this.currentPiece.shape) {
@@ -184,7 +242,7 @@ class Tetris {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         if (this.grid[y][x]) {
-          this.drawBlock(x, y);
+          this.drawBlock(x, y, this.gridColors[y][x]);
         }
       }
     }
@@ -193,7 +251,7 @@ class Tetris {
     for (let y = 0; y < this.currentPiece.shape.length; y++) {
       for (let x = 0; x < this.currentPiece.shape[y].length; x++) {
         if (this.currentPiece.shape[y][x]) {
-          this.drawBlock(this.currentPiece.x + x, this.currentPiece.y + y);
+          this.drawBlock(this.currentPiece.x + x, this.currentPiece.y + y, this.currentPiece.color);
         }
       }
     }
@@ -204,8 +262,8 @@ class Tetris {
     this.updateStatusPanel()
   }
 
-  drawBlock(x, y) {
-    this.ctx.fillStyle = 'blue';
+  drawBlock(x, y, color = 'blue') {
+    this.ctx.fillStyle = color;
     this.ctx.fillRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
     this.ctx.strokeStyle = 'white';
     this.ctx.strokeRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize);
@@ -219,19 +277,22 @@ class Tetris {
 
   drawScore() {
     this.ctx.font = "26px Microsoft-Yahei"
+    this.ctx.fillStyle = '#66ccff'
     this.ctx.fillText(
       `${this.score}`.padStart('8', '0'),
       160,
       30,
       100
     )
+    this.ctx.fillStyle = 'blue'
   }
 
   drawNextPieces() {
     
     let yOffset = 10;
     for (let i = 0; i < this.nextPieces.length; i++) {
-      const piece = this.nextPieces[i];
+      const piece = this.nextPieces[i].Shape;
+      const pieceColor = this.nextPieces[i].Color
       const pieceHeight = piece.length * this.blockSizePreview;
       const pieceWidth = piece[0].length * this.blockSizePreview;
       const xOffset = (this.previewCanvas.width - pieceWidth) / 2;
@@ -239,7 +300,7 @@ class Tetris {
       for (let y = 0; y < piece.length; y++) {
         for (let x = 0; x < piece[y].length; x++) {
           if (piece[y][x]) {
-            this.previewCtx.fillStyle = 'blue';
+            this.previewCtx.fillStyle = pieceColor;
             this.previewCtx.fillRect(
               xOffset + x * this.blockSizePreview, 
               yOffset + y * this.blockSizePreview, 
@@ -263,7 +324,8 @@ class Tetris {
 
   drawGhostPiece() {
     const ghost = this.getGhostPiecePosition();
-    this.ctx.strokeStyle = 'blue';
+    const { color } = ghost
+    this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 1;
 
     for (let row = 0; row < this.currentPiece.shape.length; row++) {
@@ -314,6 +376,8 @@ const canvas = document.getElementById('tetrisCanvas');
 canvas.width = 280;  // 10 * 28
 canvas.height = 560; // 20 * 28
 var game
+var accelerateFn
+var reduceFn
 
 $('#startButton').addEventListener('click', (e) => {
   e.target.style.display = 'none'
@@ -334,11 +398,14 @@ $('#startButton').addEventListener('click', (e) => {
     game.movePiece(1, 0);
   }
 
-  $('#btnDrop').onkeydown = () => {
-    game.moveDelay = 200
+  if (accelerateFn) {
+    document.removeEventListener('touchstart', accelerateFn)
   }
-
-  $('#btnDrop').onkeyup = () => {
-    game.moveDelay = 500
+  if (reduceFn) {
+    document.removeEventListener('touchend', reduceFn)
   }
+  accelerateFn = () => game.accelerate(true)
+  reduceFn = () => game.accelerate(false)
+  $('#btnDrop').addEventListener('touchstart', accelerateFn)
+  $('#btnDrop').addEventListener('touchend', reduceFn)
 })
